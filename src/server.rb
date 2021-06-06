@@ -15,7 +15,7 @@ class Server < Sinatra::Base
     enable :sessions
     RSpotify.authenticate ID, SECRET
     use OmniAuth::Builder do
-      provider :spotify, ID, SECRET, scope: 'user-library-read playlist-modify-public playlist-modify-private'
+      provider :spotify, ID, SECRET, scope: 'user-library-read playlist-modify-public playlist-modify-private playlist-read-private'
     end
   end
 

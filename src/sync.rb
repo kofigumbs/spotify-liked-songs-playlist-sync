@@ -15,9 +15,15 @@ loop do
   offset += tracks.count
 end
 
-playlist = USER.playlists(limit: 50).find do |playlist|
-  playlist.owner == USER && playlist.name == PLAYLIST_NAME
+offset = 0
+playlist = nil
+loop do
+  playlists = USER.playlists offset: offset, limit: 50
+  playlist = playlists.find { |playlist| playlist.name == PLAYLIST_NAME }
+  break if playlist || playlists.empty?
+  offset += playlists.count
 end
+
 playlist ||= USER.create_playlist! PLAYLIST_NAME, public: false
 playlist.replace_tracks! []
 groups.each { |tracks| playlist.add_tracks! tracks }
