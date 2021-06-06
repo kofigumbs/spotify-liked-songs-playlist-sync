@@ -6,6 +6,6 @@
     SPOTIFY_CLIENT_ID= SPOTIFY_CLIENT_SECRET= bundle exec ruby src/auth.rb
     ```
 4. Fork this repo and add the following GitHub Action Secrets:
-    - `SPOTIFY_USER` - generated from setup above
+    - `SPOTIFY_USER` - copied to clipboard in setup above
     - `SPOTIFY_PLAYLIST_NAME` - sync will create a new playlist if it doesn't find one with the matching name)
     - `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` - [from Spotify's developer dashboard](https://developer.spotify.com/dashboard/)
