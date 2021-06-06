@@ -2,7 +2,7 @@
 2. Add `http://localhost:3000/auth/spotify/callback` to your Spotify application's Redirect URIs
 3. Clone locally and run the following one-time setup:
     ```
-    bundle check || bundle install
+    bundle install
     SPOTIFY_CLIENT_ID= SPOTIFY_CLIENT_SECRET= bundle exec ruby src/auth.rb
     ```
 4. Fork this repo and add the following GitHub Action Secrets:
