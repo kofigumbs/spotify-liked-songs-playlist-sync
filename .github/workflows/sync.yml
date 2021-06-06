@@ -1,6 +1,7 @@
 on:
   schedule:
   - cron: "6 * * * *"
+  workflow_dispatch:
 
 env:
   SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
