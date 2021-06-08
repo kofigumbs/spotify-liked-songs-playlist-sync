@@ -2,9 +2,13 @@ require 'base64'
 require 'json'
 require 'rspotify'
 
-RSpotify.authenticate ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET']
-USER = RSpotify::User.new JSON.parse(Base64.decode64(ENV['SPOTIFY_USER']))
-PLAYLIST_NAME = ENV['SPOTIFY_PLAYLIST_NAME'].strip
+SPOTIFY_CLIENT_ID = ENV.fetch 'SPOTIFY_CLIENT_ID'
+SPOTIFY_CLIENT_SECRET = ENV.fetch 'SPOTIFY_CLIENT_SECRET'
+SPOTIFY_PLAYLIST_NAME = ENV.fetch 'SPOTIFY_PLAYLIST_NAME'
+SPOTIFY_USER = ENV.fetch 'SPOTIFY_USER'
+
+RSpotify.authenticate SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+USER = RSpotify::User.new JSON.parse(Base64.decode64(SPOTIFY_USER))
 
 offset = 0
 groups = []
@@ -19,7 +23,7 @@ offset = 0
 playlist = nil
 loop do
   playlists = USER.playlists offset: offset, limit: 50
-  playlist = playlists.find { |playlist| playlist.name == PLAYLIST_NAME }
+  playlist = playlists.find { |x| x.name == SPOTIFY_PLAYLIST_NAME }
   break if playlist || playlists.empty?
   offset += playlists.count
 end
