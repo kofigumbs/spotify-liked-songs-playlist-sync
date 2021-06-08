@@ -1,10 +1,29 @@
 require 'base64'
 require 'json'
+require 'octokit'
+require 'rbnacl'
 require 'rspotify'
 
-RSpotify.authenticate ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET']
-USER = RSpotify::User.new JSON.parse(Base64.decode64(ENV['SPOTIFY_USER']))
-PLAYLIST_NAME = ENV['SPOTIFY_PLAYLIST_NAME'].strip
+SPOTIFY_CLIENT_ID = ENV.fetch 'SPOTIFY_CLIENT_ID'
+SPOTIFY_CLIENT_SECRET = ENV.fetch 'SPOTIFY_CLIENT_SECRET'
+SPOTIFY_PLAYLIST_NAME = ENV.fetch 'SPOTIFY_PLAYLIST_NAME'
+SPOTIFY_USER = ENV.fetch 'SPOTIFY_USER'
+GITHUB_TOKEN = ENV.fetch 'GITHUB_TOKEN'
+GITHUB_REPOSITORY = ENV.fetch 'GITHUB_REPOSITORY'
+
+RSpotify.authenticate SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+user_hash = JSON.parse SPOTIFY_USER
+user_hash['credentials']['access_refresh_callback'] = Proc.new do
+  github = Octokit::Client.new access_token: GITHUB_TOKEN
+  repository_key = github.get_public_key GITHUB_REPOSITORY
+  sodium_key = RbNaCl::PublicKey.new Base64.decode64(repository_key[:key])
+  sodium_box = RbNaCl::Boxes::Sealed.from_public_key(sodium_key)
+  github.create_or_update_secret GITHUB_REPOSITORY, 'SPOTIFY_USER', {
+    key_id: repository_key[:key_id],
+    encrypted_value: Base64.strict_encode64(sodium_box.encrypt(USER.to_hash.to_json)),
+  }
+end
+USER = RSpotify::User.new user_hash
 
 offset = 0
 groups = []
@@ -19,11 +38,11 @@ offset = 0
 playlist = nil
 loop do
   playlists = USER.playlists offset: offset, limit: 50
-  playlist = playlists.find { |playlist| playlist.name == PLAYLIST_NAME }
+  playlist = playlists.find { |x| x.name == SPOTIFY_PLAYLIST_NAME }
   break if playlist || playlists.empty?
   offset += playlists.count
 end
 
-playlist ||= USER.create_playlist! PLAYLIST_NAME, public: false
+playlist ||= USER.create_playlist! SPOTIFY_PLAYLIST_NAME, public: false
 playlist.replace_tracks! []
 groups.each { |tracks| playlist.add_tracks! tracks }

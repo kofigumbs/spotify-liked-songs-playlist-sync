@@ -1,4 +1,3 @@
-require 'base64'
 require 'clipboard'
 require 'launchy'
 require_relative 'server'
@@ -17,4 +16,4 @@ end
 puts ''
 puts ' → OK! Copying `SPOTIFY_USER` to your clipboard.'
 puts ''
-Clipboard.copy Base64.encode64(Server.user_json)
+Clipboard.copy Server.user_json
