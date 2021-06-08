@@ -28,6 +28,6 @@ loop do
   offset += playlists.count
 end
 
-playlist ||= USER.create_playlist! PLAYLIST_NAME, public: false
+playlist ||= USER.create_playlist! SPOTIFY_PLAYLIST_NAME, public: false
 playlist.replace_tracks! []
 groups.each { |tracks| playlist.add_tracks! tracks }
