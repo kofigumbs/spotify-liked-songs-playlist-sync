@@ -12,7 +12,7 @@ GITHUB_TOKEN = ENV.fetch 'GITHUB_TOKEN'
 GITHUB_REPOSITORY = ENV.fetch 'GITHUB_REPOSITORY'
 
 RSpotify.authenticate SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
-user_hash = JSON.parse SPOTIFY_USER
+user_hash = JSON.parse Base64.decode64(SPOTIFY_USER)
 user_hash['credentials']['access_refresh_callback'] = Proc.new do
   github = Octokit::Client.new access_token: GITHUB_TOKEN
   repository_key = github.get_public_key GITHUB_REPOSITORY
@@ -20,7 +20,7 @@ user_hash['credentials']['access_refresh_callback'] = Proc.new do
   sodium_box = RbNaCl::Boxes::Sealed.from_public_key(sodium_key)
   github.create_or_update_secret GITHUB_REPOSITORY, 'SPOTIFY_USER', {
     key_id: repository_key[:key_id],
-    encrypted_value: Base64.strict_encode64(sodium_box.encrypt(USER.to_hash.to_json)),
+    encrypted_value: Base64.strict_encode64(sodium_box.encrypt(Base64.encode64(USER.to_hash.to_json))),
   }
 end
 USER = RSpotify::User.new user_hash

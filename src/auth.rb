@@ -16,4 +16,4 @@ end
 puts ''
 puts ' → OK! Copying `SPOTIFY_USER` to your clipboard.'
 puts ''
-Clipboard.copy Server.user_json
+Clipboard.copy Base64.encode64(Server.user_json)
