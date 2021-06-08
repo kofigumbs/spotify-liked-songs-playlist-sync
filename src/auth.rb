@@ -1,3 +1,4 @@
+require 'base64'
 require 'clipboard'
 require 'launchy'
 require_relative 'server'
